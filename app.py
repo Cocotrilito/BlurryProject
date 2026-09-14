@@ -27,4 +27,5 @@ if file is not None:
         mask_3d = cv2.merge([mask, mask, mask])
         image[y:y+h, x:x+w] = np.where(mask_3d == 255, region_blurred, region)
     st.image(image, channels="BGR")
-    st.write("File recieved")
+    result = cv2.imencode(".png", image)[1].tobytes()
+    st.download_button("Download blurred photo", result, "result.png", "image/png")
