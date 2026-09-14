@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
+import sys
 
-image = cv2.imread("foto.jpeg")
+image = cv2.imread(sys.argv[1])
 
 classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
