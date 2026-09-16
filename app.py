@@ -35,26 +35,33 @@ if file is not None:
     if len(result.face_landmarks) == 0:
         st.warning("Ups.. No faces detected in this photo!")
     else:
+        with st.spinner("Processing hold on..."):
 
-        height, width, _ = image.shape
-        mask = np.zeros((height, width), dtype=np.uint8)
+            height, width, _ = image.shape
+            mask = np.zeros((height, width), dtype=np.uint8)
 
 
 
-        for face_landmarks in result.face_landmarks:
-            contour_points = []
-            for index in FACE_OVAL_INDICES:
-                point = face_landmarks[index]
-                x = int(point.x * width)
-                y = int(point.y * height)
-                contour_points.append([x, y])
-            puntos_array = np.array(contour_points, dtype=np.int32)
-            cv2.fillPoly(mask, [puntos_array], 255)
+            for face_landmarks in result.face_landmarks:
+                contour_points = []
+                for index in FACE_OVAL_INDICES:
+                    point = face_landmarks[index]
+                    x = int(point.x * width)
+                    y = int(point.y * height)
+                    contour_points.append([x, y])
+                puntos_array = np.array(contour_points, dtype=np.int32)
+                cv2.fillPoly(mask, [puntos_array], 255)
 
         blur_intensity = st.slider("Blur Intensity", min_value=15, max_value=151, value=99, step=2)
         image_blurred = cv2.GaussianBlur(image, (blur_intensity,blur_intensity), 30)
         mask_3d = cv2.merge([mask, mask, mask])
         result = np.where(mask_3d == 255, image_blurred, image)
-        st.image(result, channels="BGR")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("Original")
+            st.image(image, channels="BGR")
+        with col2:
+            st.write("Blurred")
+            st.image(result, channels="BGR")
         resultBytes = cv2.imencode(".png", result)[1].tobytes()
         st.download_button("Download blurred photo", resultBytes, "result.png", "image/png")
