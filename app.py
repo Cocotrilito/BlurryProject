@@ -51,8 +51,8 @@ if file is not None:
             puntos_array = np.array(contour_points, dtype=np.int32)
             cv2.fillPoly(mask, [puntos_array], 255)
 
-        image_blurred = cv2.GaussianBlur(image, (99,99), 30)
         blur_intensity = st.slider("Blur Intensity", min_value=15, max_value=151, value=99, step=2)
+        image_blurred = cv2.GaussianBlur(image, (blur_intensity,blur_intensity), 30)
         mask_3d = cv2.merge([mask, mask, mask])
         result = np.where(mask_3d == 255, image_blurred, image)
         st.image(result, channels="BGR")
