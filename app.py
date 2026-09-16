@@ -42,15 +42,17 @@ if file is not None:
 
 
 
-            for face_landmarks in result.face_landmarks:
-                contour_points = []
-                for index in FACE_OVAL_INDICES:
-                    point = face_landmarks[index]
-                    x = int(point.x * width)
-                    y = int(point.y * height)
-                    contour_points.append([x, y])
-                puntos_array = np.array(contour_points, dtype=np.int32)
-                cv2.fillPoly(mask, [puntos_array], 255)
+            for i,face_landmarks in enumerate(result.face_landmarks):
+                hasToBlur = st.checkbox("Blur face" + str(i + 1), value = True)
+                if hasToBlur:
+                    contour_points = []
+                    for index in FACE_OVAL_INDICES:
+                        point = face_landmarks[index]
+                        x = int(point.x * width)
+                        y = int(point.y * height)
+                        contour_points.append([x, y])
+                    puntos_array = np.array(contour_points, dtype=np.int32)
+                    cv2.fillPoly(mask, [puntos_array], 255)
 
         blur_intensity = st.slider("Blur Intensity", min_value=15, max_value=151, value=99, step=2)
         image_blurred = cv2.GaussianBlur(image, (blur_intensity,blur_intensity), 30)
