@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import cv2
-import mediapipe as np
+import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from PIL import Image
@@ -32,22 +32,29 @@ if file is not None:
     mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_array)
     result = detector.detect(mp_image)
 
-    height, width, _ = image.shape
-    mask = np.zeros((height, width), dtype=np.uint8)
+    if len(result.face_landmarks) == 0:
+        st.warning("Ups.. No faces detected in this photo!")
+    else:
 
-    for face_landmarks in result.face_landmarks:
-        contour_points = []
-        for index in FACE_OVAL_INDICES:
-            point = face_landmarks[index]
-            x = int(point.x * width)
-            y = int(point.y * height)
-            contour_points.append([x, y])
-        puntos_array = np.array(contour_points, dtype=np.int32)
-        cv2.fillPoly(mask, [puntos_array], 255)
+        height, width, _ = image.shape
+        mask = np.zeros((height, width), dtype=np.uint8)
 
-    image_blurred = cv2.GaussianBlur(image, (99,99), 30)
-    mask_3d = cv2.merge([mask, mask, mask])
-    result = np.where(mask_3d == 255, image_blurred, image)
-    st.image(result, channels="BGR")
-    resultBytes = cv2.imencode(".png", result)[1].tobytes()
-    st.download_button("Download blurred photo", resultBytes, "result.png", "image/png")
+
+
+        for face_landmarks in result.face_landmarks:
+            contour_points = []
+            for index in FACE_OVAL_INDICES:
+                point = face_landmarks[index]
+                x = int(point.x * width)
+                y = int(point.y * height)
+                contour_points.append([x, y])
+            puntos_array = np.array(contour_points, dtype=np.int32)
+            cv2.fillPoly(mask, [puntos_array], 255)
+
+        image_blurred = cv2.GaussianBlur(image, (99,99), 30)
+        blur_intensity = st.slider("Blur Intensity", min_value=15, max_value=151, value=99, step=2)
+        mask_3d = cv2.merge([mask, mask, mask])
+        result = np.where(mask_3d == 255, image_blurred, image)
+        st.image(result, channels="BGR")
+        resultBytes = cv2.imencode(".png", result)[1].tobytes()
+        st.download_button("Download blurred photo", resultBytes, "result.png", "image/png")
