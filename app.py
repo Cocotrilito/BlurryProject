@@ -52,9 +52,20 @@ if file is not None:
                 x_min, x_max = min(xs), max(xs)
                 y_min, y_max = min(ys), max(ys)
                 face_boxes.append((x_min, y_min, x_max, y_max))
+
+            if "pending_click" in st.session_state:
+                click_x, click_y = st.session_state.pending_click
+                for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
+                    if x_min <= click_x <= x_max and y_min <= click_y <= y_max:
+                        current = st.session_state.blur_faces.get(i, True)
+                        st.session_state.blur_faces[i] = not current
+                del st.session_state.pending_click
+
+            image_display = image.copy()
+            for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
                 color = (0, 0, 255) if st.session_state.blur_faces.get(i, True) else (0, 255, 0)
                 cv2.rectangle(image_display, (x_min, y_min), (x_max, y_max), color, 3)
-
+                
 
             click = streamlit_image_coordinates(
                 cv2.cvtColor(image_display, cv2.COLOR_BGR2RGB),
@@ -64,13 +75,16 @@ if file is not None:
             
 
             if click is not None:
-                scale = width /600
-                click_x = int(click["x"] * scale)
-                click_y = int(click["y"] * scale)
-                for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
-                    if x_min <= click_x <= x_max and y_min <= click_y <= y_max:
-                        current = st.session_state.blur_faces.get(i, True)                    
-                        st.session_state.blur_faces[i] = not current
+                click_key = (click["x"], click["y"])
+                if st.session_state.get("last_click") != click_key:
+                    st.session_state.last_click = click_key
+                    scale = width /600
+                    click_x = int(click["x"] * scale)
+                    click_y = int(click["y"] * scale)
+                    for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
+                        if x_min <= click_x <= x_max and y_min <= click_y <= y_max:
+                            current = st.session_state.blur_faces.get(i, True)                    
+                            st.session_state.blur_faces[i] = not current
             for i, face_landmarks in enumerate(result.face_landmarks):
                 if st.session_state.blur_faces.get(i, True):
                     contour_points = []
