@@ -56,11 +56,17 @@ if file is not None:
                 cv2.rectangle(image_display, (x_min, y_min), (x_max, y_max), color, 3)
 
 
-            click = streamlit_image_coordinates(cv2.cvtColor(image_display, cv2.COLOR_BGR2RGB), key="face_selector")
+            click = streamlit_image_coordinates(
+                cv2.cvtColor(image_display, cv2.COLOR_BGR2RGB),
+                key="face_selector",
+                width=600
+            )
+            
 
             if click is not None:
-                click_x = click["x"]
-                click_y = click["y"]
+                scale = width /600
+                click_x = int(click["x"] * scale)
+                click_y = int(click["y"] * scale)
                 for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
                     if x_min <= click_x <= x_max and y_min <= click_y <= y_max:
                         current = st.session_state.blur_faces.get(i, True)                    
