@@ -73,7 +73,6 @@ if file is not None:
                 width=600
             )
 
-            st.write(click)
 
             if click is not None:
                 click_key = click["unix_time"]
@@ -93,10 +92,25 @@ if file is not None:
                     puntos_array = np.array(contour_points, dtype=np.int32)
                     cv2.fillPoly(mask, [puntos_array], 255)
 
+
+
+        blur_style = st.selectbox("Censorship Style", ["BLUR", "PIXELATE", "BLACK BAR", "EMOJI"])
         blur_intensity = st.slider("Blur Intensity", min_value=15, max_value=151, value=99, step=2)
-        image_blurred = cv2.GaussianBlur(image, (blur_intensity,blur_intensity), 30)
+
+
+
+        if blur_style == "BLUR":
+            image_censored = cv2.GaussianBlur(image, (blur_intensity, blur_intensity), 30)
+        elif blur_style == "PIXELATE":
+            small = cv2.resize(image, (width // 20, height // 20))
+            image_censored = cv2. resize(small, (width, height), interpolation=cv2.INTER_NEAREST)
+        elif blur_style == "BLACK BAR":
+            image_censored = np.zeros_like(image)
+        else:
+            image_censored = image.copy()
+
         mask_3d = cv2.merge([mask, mask, mask])
-        result = np.where(mask_3d == 255, image_blurred, image)
+        result = np.where(mask_3d == 255, image_censored, image)
         col1, col2 = st.columns(2)
         with col1:
             st.write("Original")
