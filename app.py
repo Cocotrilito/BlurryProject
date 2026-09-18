@@ -63,28 +63,25 @@ if file is not None:
 
             image_display = image.copy()
             for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
-                color = (0, 0, 255) if st.session_state.blur_faces.get(i, True) else (0, 255, 0)
+                color = (0, 255, 0) if st.session_state.blur_faces.get(i, True) else (0, 0, 255)
                 cv2.rectangle(image_display, (x_min, y_min), (x_max, y_max), color, 3)
-                
+
 
             click = streamlit_image_coordinates(
                 cv2.cvtColor(image_display, cv2.COLOR_BGR2RGB),
                 key="face_selector",
                 width=600
             )
-            
+
+            st.write(click)
 
             if click is not None:
-                click_key = (click["x"], click["y"])
+                click_key = click["unix_time"]
                 if st.session_state.get("last_click") != click_key:
                     st.session_state.last_click = click_key
                     scale = width /600
-                    click_x = int(click["x"] * scale)
-                    click_y = int(click["y"] * scale)
-                    for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
-                        if x_min <= click_x <= x_max and y_min <= click_y <= y_max:
-                            current = st.session_state.blur_faces.get(i, True)                    
-                            st.session_state.blur_faces[i] = not current
+                    st.session_state.pending_click = (int(click["x"] * scale), int(click["y"] * scale))
+                    st.rerun()
             for i, face_landmarks in enumerate(result.face_landmarks):
                 if st.session_state.blur_faces.get(i, True):
                     contour_points = []
