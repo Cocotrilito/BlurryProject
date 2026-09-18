@@ -102,10 +102,13 @@ if file is not None:
         if blur_style == "BLUR":
             image_censored = cv2.GaussianBlur(image, (blur_intensity, blur_intensity), 30)
         elif blur_style == "PIXELATE":
-            small = cv2.resize(image, (width // 20, height // 20))
+            pixel_size = max(2, blur_intensity // 10)
+            small = cv2.resize(image, (width // pixel_size, height // pixel_size))
             image_censored = cv2. resize(small, (width, height), interpolation=cv2.INTER_NEAREST)
         elif blur_style == "BLACK BAR":
-            image_censored = np.zeros_like(image)
+            opacity = blur_intensity / 151
+            black= np.zeros_like(image)
+            image_censored = cv2.addWeighted(image, 1 - opacity, black, opacity, 0)
         else:
             image_censored = image.copy()
 
