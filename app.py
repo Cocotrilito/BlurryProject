@@ -121,12 +121,16 @@ if file is not None:
                     puntos_array = np.array(contour_points, dtype=np.int32)
                     cv2.fillPoly(mask, [puntos_array], 255)
 
-
+            if "current_file" not in st.session_state or st.session_state.current_file != file.name:
+                st.session_state.current_file = file.name
+                st.session_state_state.manual_boxes = []
+                st.session_state.blur_faces = {}
+                st.session_state.first_corner = None
         
 
 
-        blur_style = st.selectbox("Censorship Style", ["Blur", "Pixelate", "Black Bar"])
-        blur_intensity = st.slider("Blur Intensity", min_value=15, max_value=151, value=99, step=2)
+        blur_style = st.selectbox("Censorship Style", ["Blur", "Pixelate", "Black Bar"], key="blur_style_select")
+        blur_intensity = st.slider("Blur Intensity", min_value=15, max_value=151, value=99, step=2, key="blur_intensity_slider")
 
 
 
