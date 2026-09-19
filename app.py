@@ -28,10 +28,12 @@ FACE_OVAL_INDICES = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288,
 
 
 if file is not None:
-    if "current_file" not in st.session_state or st.session_state.current_file != file.name:
+
+    file_identifier = file.name + "_" + str(file.size)
+    if "current_file" not in st.session_state or st.session_state.current_file != file_identifier:
         print("DEBUG - ARCHIVO WE", file.name, "/ anterior", st.session_state.get("current_file"))
 
-        st.session_state.current_file = file.name
+        st.session_state.current_file = file_identifier
         st.session_state.manual_boxes = []
         st.session_state.blur_faces = {}
         st.session_state.first_corner = None
