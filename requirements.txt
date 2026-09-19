@@ -1,0 +1,7 @@
+streamlit
+opencv-python
+numpy
+mediapipe==0.10.35
+Pillow
+streamlit-image-coordinates
+
