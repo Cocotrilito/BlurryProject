@@ -85,9 +85,11 @@ if file is not None:
                     scale = width /600
                     point = (int(click["x"] * scale), int(click["y"] * scale))
 
+                    print("Debug - point:", point, "mode:", mode, "first_corner:", st.session_state.first_corner)
+
+
                     if mode == "Toggle Face blur":
                         click_x, click_y = point
-
                         for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
                             
                             if x_min <= click_x <= x_max and y_min <= click_y <= y_max:
