@@ -6,6 +6,10 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from PIL import Image
 from streamlit_image_coordinates import streamlit_image_coordinates
+import io
+from streamlit_drawable_canvas import st_canvas
+
+
 
 if "blur_faces" not in st.session_state:
     st.session_state.blur_faces = {}
@@ -94,24 +98,38 @@ if file is not None:
 
 
 
-        blur_style = st.selectbox("Censorship Style", ["BLUR", "PIXELATE", "BLACK BAR", "EMOJI"])
+        st.write("Draw extra areas to censor (OPTIONAL):")
+        canvas_result = st_canvas(
+            fill_color="rgba(255, 255, 255, 1)",
+            stroke_width=0,
+            background_image=Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)),
+            height=height,
+            width=width,
+            drawing_mode="freedraw",
+            key="manual_mask"
+        )
+
+
+        blur_style = st.selectbox("Censorship Style", ["Blur", "Pixelate", "Black Bar"])
         blur_intensity = st.slider("Blur Intensity", min_value=15, max_value=151, value=99, step=2)
 
 
 
-        if blur_style == "BLUR":
+
+        if blur_style == "Blur":
             image_censored = cv2.GaussianBlur(image, (blur_intensity, blur_intensity), 30)
-        elif blur_style == "PIXELATE":
+        elif blur_style == "Pixelate":
             pixel_size = max(2, blur_intensity // 10)
             small = cv2.resize(image, (width // pixel_size, height // pixel_size))
             image_censored = cv2. resize(small, (width, height), interpolation=cv2.INTER_NEAREST)
-        elif blur_style == "BLACK BAR":
+        elif blur_style == "Black":
             opacity = blur_intensity / 151
             black= np.zeros_like(image)
             image_censored = cv2.addWeighted(image, 1 - opacity, black, opacity, 0)
-        else:
-            image_censored = image.copy()
 
+        if canvas_result.image_data is not None:
+            canvas_mask = canvas_result.image_data[:, :, 3]
+            mask = np.where(canvas_mask > 0, 255, mask).astype(np.uint8)
         mask_3d = cv2.merge([mask, mask, mask])
         result = np.where(mask_3d == 255, image_censored, image)
         col1, col2 = st.columns(2)
