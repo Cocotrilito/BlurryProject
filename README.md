@@ -7,6 +7,9 @@
 ![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)
 ![MediaPipe](https://img.shields.io/badge/MediaPipe-0097A7?style=for-the-badge&logo=googlecloud&logoColor=white)
 
+
+[![Try it live](https://img.shields.io/badge/Try_it-live-2ea44f?style=for-the-badge)](https://blurryproject.streamlit.app/)
+
 # Blurry Project
 This is Blurry Project, upload your picture, faces will get blurred, you have an automatic and manual mode, different censorship styles, and no metadata in your final files
 
