@@ -44,7 +44,7 @@ if file is not None:
     image = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
 
     
-    base_options = python.BaseOptions(model_asset_path='face_landmarker.task')
+    base_options = python.BaseOptions(model_asset_path='face_landmarker.task', delegate=python.BaseOptions.Delegate.CPU)
     options = vision.FaceLandmarkerOptions(base_options=base_options, num_faces=5)
     detector = vision.FaceLandmarker.create_from_options(options)
 
