@@ -28,6 +28,11 @@ FACE_OVAL_INDICES = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288,
 
 
 if file is not None:
+    if "current_file" not in st.session_state or st.session_state.current_file != file.name:
+        st.session_state.current_file = file.name
+        st.session_state.manual_boxes = []
+        st.session_state.blur_faces = {}
+        st.session_state.first_corner = None
     image_pil = Image.open(file)
     image_array = np.array(image_pil)
     image = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
@@ -44,12 +49,14 @@ if file is not None:
     else:
         with st.spinner("Processing hold on..."):
 
+
+            
             height, width, _ = image.shape
             mask = np.zeros((height, width), dtype=np.uint8)
 
             image_display = image.copy()
 
-            
+
 
             face_boxes = []
             for i, face_landmarks in enumerate(result.face_landmarks):
@@ -80,6 +87,8 @@ if file is not None:
 
             if click is not None:
                 click_key = click["unix_time"]
+        
+                    
                 if st.session_state.get("last_click") != click_key:
                     st.session_state.last_click = click_key
                     scale = width /600
@@ -105,7 +114,7 @@ if file is not None:
                             new_rect = (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
                             st.session_state.manual_boxes.append(new_rect)
                             st.session_state.first_corner = None
-                        st.rerun()
+                        
 
 
 
@@ -121,11 +130,7 @@ if file is not None:
                     puntos_array = np.array(contour_points, dtype=np.int32)
                     cv2.fillPoly(mask, [puntos_array], 255)
 
-            if "current_file" not in st.session_state or st.session_state.current_file != file.name:
-                st.session_state.current_file = file.name
-                st.session_state_state.manual_boxes = []
-                st.session_state.blur_faces = {}
-                st.session_state.first_corner = None
+    
         
 
 
@@ -134,8 +139,10 @@ if file is not None:
 
 
 
+        print("DEBUG selectbox value:", blur_style)    
 
         if blur_style == "Blur":
+            
             image_censored = cv2.GaussianBlur(image, (blur_intensity, blur_intensity), 30)
         elif blur_style == "Pixelate":
             pixel_size = max(2, blur_intensity // 10)
