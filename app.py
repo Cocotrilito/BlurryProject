@@ -142,10 +142,10 @@ if file is not None:
             black= np.zeros_like(image)
             image_censored = cv2.addWeighted(image, 1 - opacity, black, opacity, 0)
 
-
-        mask_3d = cv2.merge([mask, mask, mask])
         for (x_min, y_min, x_max, y_max) in st.session_state.manual_boxes:
             cv2.rectangle(mask, (x_min, y_min), (x_max, y_max), 255, -1)
+        mask_3d = cv2.merge([mask, mask, mask])
+
         result = np.where(mask_3d == 255, image_censored, image)
         col1, col2 = st.columns(2)
         with col1:
