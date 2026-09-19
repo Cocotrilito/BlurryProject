@@ -29,13 +29,18 @@ FACE_OVAL_INDICES = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288,
 
 if file is not None:
     if "current_file" not in st.session_state or st.session_state.current_file != file.name:
+        print("DEBUG - ARCHIVO WE", file.name, "/ anterior", st.session_state.get("current_file"))
+
         st.session_state.current_file = file.name
         st.session_state.manual_boxes = []
         st.session_state.blur_faces = {}
         st.session_state.first_corner = None
+    else:
+        print("DEBUG -  MISMO ARCHIVO NO SE RESETEA", file.name)
     image_pil = Image.open(file)
     image_array = np.array(image_pil)
     image = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
+
     
     base_options = python.BaseOptions(model_asset_path='face_landmarker.task')
     options = vision.FaceLandmarkerOptions(base_options=base_options, num_faces=5)
