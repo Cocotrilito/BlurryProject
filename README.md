@@ -1,13 +1,14 @@
 <div align="center">
-    <img src="fingerprint.png" alt="fingerprint" width="200">
-    
-    ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-    ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
-    ![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)
-    ![MediaPipe](https://img.shields.io/badge/MediaPipe-0097A7?style=for-the-badge&logo=googlecloud&logoColor=white)
+<img src="logo.png" alt="fingerprint" width="200">
 
-    # Blurry Project
-    This is Blurry Project, upload your picture, faces will get blurred, you have an automatic and manual mode, different censorship styles, and no metadata in your final files
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
+![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)
+![MediaPipe](https://img.shields.io/badge/MediaPipe-0097A7?style=for-the-badge&logo=googlecloud&logoColor=white)
+
+# Blurry Project
+This is Blurry Project, upload your picture, faces will get blurred, you have an automatic and manual mode, different censorship styles, and no metadata in your final files
 
 </div>
 
