@@ -122,7 +122,7 @@ if file is not None:
             pixel_size = max(2, blur_intensity // 10)
             small = cv2.resize(image, (width // pixel_size, height // pixel_size))
             image_censored = cv2. resize(small, (width, height), interpolation=cv2.INTER_NEAREST)
-        elif blur_style == "Black":
+        elif blur_style == "Black Bar":
             opacity = blur_intensity / 151
             black= np.zeros_like(image)
             image_censored = cv2.addWeighted(image, 1 - opacity, black, opacity, 0)
