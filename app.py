@@ -7,7 +7,7 @@ from mediapipe.tasks.python import vision
 from PIL import Image
 from streamlit_image_coordinates import streamlit_image_coordinates
 import io
-from streamlit_drawable_canvas import st_canvas
+
 
 
 
@@ -49,6 +49,8 @@ if file is not None:
 
             image_display = image.copy()
 
+            
+
             face_boxes = []
             for i, face_landmarks in enumerate(result.face_landmarks):
                 xs = [int(p.x * width) for p in face_landmarks]
@@ -57,34 +59,55 @@ if file is not None:
                 y_min, y_max = min(ys), max(ys)
                 face_boxes.append((x_min, y_min, x_max, y_max))
 
-            if "pending_click" in st.session_state:
-                click_x, click_y = st.session_state.pending_click
-                for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
-                    if x_min <= click_x <= x_max and y_min <= click_y <= y_max:
-                        current = st.session_state.blur_faces.get(i, True)
-                        st.session_state.blur_faces[i] = not current
-                del st.session_state.pending_click
+            if "manual_boxes" not in st.session_state:
+                st.session_state.manual_boxes = []
+            if "first_corner" not in st.session_state:
+                st.session_state.first_corner = None
 
             image_display = image.copy()
             for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
                 color = (0, 255, 0) if st.session_state.blur_faces.get(i, True) else (0, 0, 255)
                 cv2.rectangle(image_display, (x_min, y_min), (x_max, y_max), color, 3)
 
+            mode = st.radio("Click mode:", ["Toggle Face blur", "Draw manual rectangle"])
 
             click = streamlit_image_coordinates(
                 cv2.cvtColor(image_display, cv2.COLOR_BGR2RGB),
-                key="face_selector",
+                key="unified_selector",
                 width=600
             )
-
+           
 
             if click is not None:
                 click_key = click["unix_time"]
                 if st.session_state.get("last_click") != click_key:
                     st.session_state.last_click = click_key
                     scale = width /600
-                    st.session_state.pending_click = (int(click["x"] * scale), int(click["y"] * scale))
-                    st.rerun()
+                    point = (int(click["x"] * scale), int(click["y"] * scale))
+
+                    if mode == "Toggle Face blur":
+                        click_x, click_y = point
+
+                        for i, (x_min, y_min, x_max, y_max) in enumerate(face_boxes):
+                            
+                            if x_min <= click_x <= x_max and y_min <= click_y <= y_max:
+                                current = st.session_state.blur_faces.get(i, True)
+                                st.session_state.blur_faces[i] = not current
+                        st.rerun()
+                    else:
+                        if st.session_state.first_corner is None:
+                            st.session_state.first_corner = point
+                        else:
+                            x1, y1 = st.session_state.first_corner
+                            x2, y2 = point
+                            new_rect = (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
+                            st.session_state.manual_boxes.append(new_rect)
+                            st.session_state.first_corner = None
+                        st.rerun()
+
+
+
+
             for i, face_landmarks in enumerate(result.face_landmarks):
                 if st.session_state.blur_faces.get(i, True):
                     contour_points = []
@@ -97,17 +120,7 @@ if file is not None:
                     cv2.fillPoly(mask, [puntos_array], 255)
 
 
-
-        st.write("Draw extra areas to censor (OPTIONAL):")
-        canvas_result = st_canvas(
-            fill_color="rgba(255, 255, 255, 1)",
-            stroke_width=0,
-            background_image=Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)),
-            height=height,
-            width=width,
-            drawing_mode="freedraw",
-            key="manual_mask"
-        )
+        
 
 
         blur_style = st.selectbox("Censorship Style", ["Blur", "Pixelate", "Black Bar"])
@@ -127,10 +140,10 @@ if file is not None:
             black= np.zeros_like(image)
             image_censored = cv2.addWeighted(image, 1 - opacity, black, opacity, 0)
 
-        if canvas_result.image_data is not None:
-            canvas_mask = canvas_result.image_data[:, :, 3]
-            mask = np.where(canvas_mask > 0, 255, mask).astype(np.uint8)
+
         mask_3d = cv2.merge([mask, mask, mask])
+        for (x_min, y_min, x_max, y_max) in st.session_state.manual_boxes:
+            cv2.rectangle(mask, (x_min, y_min), (x_max, y_max), 255, -1)
         result = np.where(mask_3d == 255, image_censored, image)
         col1, col2 = st.columns(2)
         with col1:
